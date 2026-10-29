@@ -1,0 +1,86 @@
+[
+  {
+    "transactionHash": "0x4a8f9c1b7e3d2a0f8b6e5c4d3a2b1f0e9d8c7b6a5e4d3c2b1a0f9e8d7c6b5a41",
+    "blockNumber": 6842100,
+    "timestamp": 1729840200,
+    "from": "0x6b75d8AF000000e20B7a7DDf000Ba900b4009A80",
+    "to": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    "valueWei": "1500000000000000000",
+    "status": "SUCCESS",
+    "gasUsed": "21000",
+    "gasPrice": "2500000000",
+    "comment": "Sepolia Testnet Faucet Inflow"
+  },
+  {
+    "transactionHash": "0x8e2c4b6a1d3f5e7a9b0c2d4e6f8a0b2c4d6e8f0a2b4c6d8e0f2a4b6c8d0e2f42",
+    "blockNumber": 6842180,
+    "timestamp": 1729841800,
+    "from": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    "to": "0x8ba1f109551bD432803012645Ac136ddd64DBA72",
+    "valueWei": "350000000000000000",
+    "status": "SUCCESS",
+    "gasUsed": "21000",
+    "gasPrice": "3000000000",
+    "comment": "Outgoing peer transfer to Alice"
+  },
+  {
+    "transactionHash": "0x1f3e5d7c9b0a2f4e6d8c0b2a4f6e8d0c2a4b6e8f0a2d4c6b8e0a2f4d6c8b0e43",
+    "blockNumber": 6842250,
+    "timestamp": 1729843200,
+    "from": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    "to": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    "valueWei": "0",
+    "status": "SUCCESS",
+    "gasUsed": "21000",
+    "gasPrice": "3200000000",
+    "comment": "Self-transfer (zero-value test transaction / nonce management)"
+  },
+  {
+    "transactionHash": "0x5b7d9f1a3c5e7a9b1d3f5a7c9e1b3d5f7a9c1e3b5d7f9a1c3e5b7d9f1a3c5e44",
+    "blockNumber": 6842320,
+    "timestamp": 1729844600,
+    "from": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    "to": null,
+    "valueWei": "0",
+    "status": "SUCCESS",
+    "gasUsed": "184200",
+    "gasPrice": "4000000000",
+    "comment": "Smart Contract Deployment (recipient null)"
+  },
+  {
+    "transactionHash": "0x7a9c1e3b5d7f9a1c3e5b7d9f1a3c5e7a9b1d3f5a7c9e1b3d5f7a9c1e3b5d7f45",
+    "blockNumber": 6842400,
+    "timestamp": 1729846200,
+    "from": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    "to": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+    "valueWei": "100000000000000000",
+    "status": "FAILED",
+    "gasUsed": "28500",
+    "gasPrice": "2800000000",
+    "comment": "Failed transaction (reverted call / out of gas)"
+  },
+  {
+    "transactionHash": "0x2d4e6f8a0b2c4d6e8f0a2b4c6d8e0f2a4b6c8d0e2f4a6b8c0d2e4f6a8b0c2d46",
+    "blockNumber": 6842510,
+    "timestamp": 1729848400,
+    "from": "0x28a8746e75304c0780E011BEd21C72cD78cd535E",
+    "to": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    "valueWei": "750000000000000000",
+    "status": "SUCCESS",
+    "gasUsed": "21000",
+    "gasPrice": "2600000000",
+    "comment": "Incoming payment from external collaborator"
+  },
+  {
+    "transactionHash": "0x9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a47",
+    "blockNumber": 6842600,
+    "timestamp": 1729850200,
+    "from": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+    "to": "0x8ba1f109551bD432803012645Ac136ddd64DBA72",
+    "valueWei": "2000000000000000000",
+    "status": "SUCCESS",
+    "gasUsed": "21000",
+    "gasPrice": "2500000000",
+    "comment": "Independent transfer between other parties (filtered out when querying 0x742d...)"
+  }
+]
