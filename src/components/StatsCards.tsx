@@ -1,37 +1,44 @@
 import React from 'react';
-import { ArrowDownLeft, ArrowUpRight, Repeat, Layers, Wallet } from 'lucide-react';
-import { TransactionSummaryStats } from '../types/transaction';
+import { ArrowDownLeft, ArrowUpRight, Repeat, Layers, Wallet, Hash } from 'lucide-react';
+import { DetailedTransactionSummary } from '../types/filters';
 
 interface StatsCardsProps {
-  stats: TransactionSummaryStats | null;
+  summary: DetailedTransactionSummary | null;
   balanceEth: string | null;
   activeDataSource: string;
 }
 
 export const StatsCards: React.FC<StatsCardsProps> = ({
-  stats,
+  summary,
   balanceEth,
   activeDataSource
 }) => {
-  if (!stats) return null;
+  if (!summary) return null;
+
+  const blockSpanText = summary.minBlock !== null && summary.maxBlock !== null
+    ? `#${summary.minBlock.toLocaleString()} - #${summary.maxBlock.toLocaleString()}`
+    : 'N/A';
 
   return (
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
         gap: '16px'
       }}
     >
-      {/* Total Transactions */}
+      {/* 1. Total Matching & Retrieved */}
       <div className="glass-panel" style={{ padding: '18px 20px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
             <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase' }}>
-              Total Transactions
+              Filtered / Retrieved
             </span>
             <div style={{ fontSize: '1.65rem', fontWeight: 800, color: '#ffffff', marginTop: '4px' }}>
-              {stats.totalCount}
+              {summary.totalMatching}{' '}
+              <span style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 600 }}>
+                / {summary.totalRetrieved}
+              </span>
             </div>
           </div>
           <div
@@ -46,19 +53,19 @@ export const StatsCards: React.FC<StatsCardsProps> = ({
           </div>
         </div>
         <div style={{ fontSize: '0.725rem', color: '#64748b', marginTop: '8px' }}>
-          Source: {activeDataSource.length > 28 ? activeDataSource.slice(0, 28) + '...' : activeDataSource}
+          Source: {activeDataSource.length > 24 ? activeDataSource.slice(0, 24) + '...' : activeDataSource}
         </div>
       </div>
 
-      {/* Incoming Transactions */}
+      {/* 2. Incoming Transactions Volume */}
       <div className="glass-panel" style={{ padding: '18px 20px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
             <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#34d399', textTransform: 'uppercase' }}>
-              Incoming ({stats.incomingCount})
+              Incoming ({summary.incomingCount})
             </span>
-            <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#34d399', marginTop: '4px' }}>
-              +{stats.totalReceivedEth} <span style={{ fontSize: '0.85rem' }}>ETH</span>
+            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#34d399', marginTop: '4px' }}>
+              +{summary.totalReceivedEth} <span style={{ fontSize: '0.8rem' }}>ETH</span>
             </div>
           </div>
           <div
@@ -73,19 +80,19 @@ export const StatsCards: React.FC<StatsCardsProps> = ({
           </div>
         </div>
         <div style={{ fontSize: '0.725rem', color: '#64748b', marginTop: '8px' }}>
-          Total received across transactions
+          Transaction value sum (not net balance)
         </div>
       </div>
 
-      {/* Outgoing Transactions */}
+      {/* 3. Outgoing Transactions Volume */}
       <div className="glass-panel" style={{ padding: '18px 20px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
             <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#fbbf24', textTransform: 'uppercase' }}>
-              Outgoing ({stats.outgoingCount})
+              Outgoing ({summary.outgoingCount})
             </span>
-            <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#fbbf24', marginTop: '4px' }}>
-              -{stats.totalSentEth} <span style={{ fontSize: '0.85rem' }}>ETH</span>
+            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#fbbf24', marginTop: '4px' }}>
+              -{summary.totalSentEth} <span style={{ fontSize: '0.8rem' }}>ETH</span>
             </div>
           </div>
           <div
@@ -100,19 +107,19 @@ export const StatsCards: React.FC<StatsCardsProps> = ({
           </div>
         </div>
         <div style={{ fontSize: '0.725rem', color: '#64748b', marginTop: '8px' }}>
-          Total sent transfers
+          Transaction value sum (not net loss)
         </div>
       </div>
 
-      {/* Self Transfers */}
+      {/* 4. Self Transfers */}
       <div className="glass-panel" style={{ padding: '18px 20px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
             <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#a78bfa', textTransform: 'uppercase' }}>
-              Self Transfers
+              Self-Transfers
             </span>
             <div style={{ fontSize: '1.65rem', fontWeight: 800, color: '#a78bfa', marginTop: '4px' }}>
-              {stats.selfTransferCount}
+              {summary.selfTransferCount}
             </div>
           </div>
           <div
@@ -127,18 +134,45 @@ export const StatsCards: React.FC<StatsCardsProps> = ({
           </div>
         </div>
         <div style={{ fontSize: '0.725rem', color: '#64748b', marginTop: '8px' }}>
-          Zero net change • Single counted
+          Single counted • Zero net volume impact
         </div>
       </div>
 
-      {/* Current Sepolia Balance */}
+      {/* 5. Block Range Span */}
+      <div className="glass-panel" style={{ padding: '18px 20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div>
+            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#cbd5e1', textTransform: 'uppercase' }}>
+              Matching Block Span
+            </span>
+            <div style={{ fontSize: '1.05rem', fontWeight: 700, color: '#f8fafc', marginTop: '8px', fontFamily: 'var(--font-mono)' }}>
+              {blockSpanText}
+            </div>
+          </div>
+          <div
+            style={{
+              padding: '8px',
+              borderRadius: '8px',
+              background: 'rgba(255, 255, 255, 0.05)',
+              color: '#94a3b8'
+            }}
+          >
+            <Hash size={20} />
+          </div>
+        </div>
+        <div style={{ fontSize: '0.725rem', color: '#64748b', marginTop: '8px' }}>
+          Inclusive block boundary span
+        </div>
+      </div>
+
+      {/* 6. Current Sepolia Balance */}
       <div className="glass-panel" style={{ padding: '18px 20px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
             <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#38bdf8', textTransform: 'uppercase' }}>
               Live Sepolia Balance
             </span>
-            <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#38bdf8', marginTop: '4px' }}>
+            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#38bdf8', marginTop: '4px' }}>
               {balanceEth !== null ? `${balanceEth} ETH` : 'N/A'}
             </div>
           </div>
@@ -154,7 +188,7 @@ export const StatsCards: React.FC<StatsCardsProps> = ({
           </div>
         </div>
         <div style={{ fontSize: '0.725rem', color: '#64748b', marginTop: '8px' }}>
-          Queried live from JSON-RPC node
+          Live state query via JSON-RPC
         </div>
       </div>
     </div>
