@@ -5,9 +5,7 @@ import {
   Trash2,
   FileDown,
   CheckCircle2,
-  AlertCircle,
-  FileText,
-  SlidersHorizontal
+  AlertCircle
 } from 'lucide-react';
 import { TransactionFilterState, FilterValidationErrors } from '../types/filters';
 
@@ -48,71 +46,53 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
   };
 
   return (
-    <div className="glass-panel" style={{ padding: '24px' }}>
-      {/* Top Header */}
+    <div className="minimal-card" style={{ padding: '16px 18px' }}>
+      {/* Top Header & Action Buttons */}
       <div
         style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           flexWrap: 'wrap',
-          gap: '12px',
-          marginBottom: '18px'
+          gap: '10px',
+          marginBottom: '12px'
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div
-            style={{
-              padding: '8px',
-              borderRadius: '8px',
-              background: 'rgba(56, 189, 248, 0.1)',
-              color: '#38bdf8'
-            }}
-          >
-            <SlidersHorizontal size={18} />
-          </div>
-          <div>
-            <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#f8fafc' }}>
-              Transaction Filters & Activity Audit
-            </h2>
-            <p style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-              Refine transactions by direction, precise ETH amount, block range, and query intent.
-            </p>
-          </div>
-        </div>
+        <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#fafafa' }}>
+          Filters
+        </span>
 
-        {/* Action Buttons: Apply, Reset, Clear, Export PDF */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
           <button
             id="apply-filters-btn"
             onClick={onApplyFilters}
             className="btn btn-primary"
-            style={{ padding: '8px 16px', fontSize: '0.825rem' }}
+            style={{ padding: '6px 12px', fontSize: '0.78rem' }}
           >
-            <Filter size={14} />
-            <span>Apply Filters</span>
+            <Filter size={12} />
+            <span>Apply</span>
           </button>
 
           <button
             id="reset-filters-btn"
             onClick={onResetFilters}
             className="btn btn-secondary"
-            style={{ padding: '8px 14px', fontSize: '0.825rem' }}
-            title="Reset all filters to default"
+            style={{ padding: '6px 10px', fontSize: '0.78rem' }}
+            title="Reset filters"
           >
-            <RotateCcw size={14} />
-            <span>Reset Filters</span>
+            <RotateCcw size={12} />
+            <span>Reset</span>
           </button>
 
           <button
             id="clear-results-btn"
             onClick={onClearResults}
-            className="btn btn-secondary"
-            style={{ padding: '8px 14px', fontSize: '0.825rem', color: '#f43f5e' }}
-            title="Clear all retrieved transactions"
+            className="btn btn-danger"
+            style={{ padding: '6px 10px', fontSize: '0.78rem' }}
+            title="Clear results"
           >
-            <Trash2 size={14} />
-            <span>Clear Results</span>
+            <Trash2 size={12} />
+            <span>Clear</span>
           </button>
 
           <button
@@ -120,138 +100,97 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
             onClick={onExportPdf}
             disabled={!canExportPdf || isExportingPdf}
             className="btn btn-outline"
-            style={{
-              padding: '8px 16px',
-              fontSize: '0.825rem',
-              borderColor: '#38bdf8',
-              color: '#38bdf8'
-            }}
-            title="Export comprehensive PDF report"
+            style={{ padding: '6px 12px', fontSize: '0.78rem' }}
+            title="Download PDF report"
           >
-            <FileDown size={14} />
-            <span>{isExportingPdf ? 'Generating PDF...' : 'Export PDF Report'}</span>
+            <FileDown size={12} />
+            <span>{isExportingPdf ? 'Exporting...' : 'Export PDF'}</span>
           </button>
         </div>
       </div>
 
-      {/* Query Text Field */}
-      <div style={{ marginBottom: '16px' }}>
-        <label
-          htmlFor="user-query-input"
-          style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', fontWeight: 600, color: '#cbd5e1', marginBottom: '6px' }}
-        >
-          <FileText size={14} style={{ color: '#38bdf8' }} />
-          <span>Audit Query Intent / Purpose (Preserved in Report):</span>
-        </label>
+      {/* Query Intent */}
+      <div style={{ marginBottom: '10px' }}>
         <input
           id="user-query-input"
           type="text"
           className="input-field"
-          placeholder="e.g., Audit Sepolia testnet faucet distributions and outgoing smart contract deployments"
+          placeholder="Audit query intent (included in report)..."
           value={filters.userQueryText || ''}
           onChange={(e) => handleChange('userQueryText' as any, e.target.value)}
-          style={{ fontFamily: 'var(--font-sans)', fontSize: '0.85rem', padding: '10px 14px' }}
+          style={{ fontFamily: 'var(--font-sans)', fontSize: '0.78rem', padding: '6px 10px' }}
         />
       </div>
 
-      {/* Structured Filter Grid */}
+      {/* Filter Inputs Grid */}
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
-          gap: '14px',
-          marginBottom: '14px'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+          gap: '8px',
+          marginBottom: '10px'
         }}
       >
-        {/* Direction Dropdown */}
         <div>
-          <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#94a3b8', marginBottom: '6px' }}>
-            Direction:
-          </label>
           <select
             id="filter-direction-select"
             value={filters.direction}
             onChange={(e) => handleChange('direction', e.target.value as any)}
-            style={{
-              width: '100%',
-              background: 'rgba(15, 23, 42, 0.8)',
-              border: '1px solid var(--border-subtle)',
-              borderRadius: '8px',
-              padding: '10px 12px',
-              color: '#f8fafc',
-              fontSize: '0.85rem',
-              fontWeight: 500,
-              cursor: 'pointer'
-            }}
+            className="input-field"
+            style={{ padding: '6px 8px', fontSize: '0.78rem' }}
           >
-            <option value="ALL">All Transactions</option>
-            <option value="INCOMING">Incoming Only</option>
-            <option value="OUTGOING">Outgoing Only</option>
-            <option value="SELF_TRANSFER">Self-Transfers Only</option>
+            <option value="ALL">All Directions</option>
+            <option value="INCOMING">Incoming</option>
+            <option value="OUTGOING">Outgoing</option>
+            <option value="SELF_TRANSFER">Self-Transfer</option>
           </select>
         </div>
 
-        {/* Amount: Min ETH */}
         <div>
-          <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#94a3b8', marginBottom: '6px' }}>
-            Min ETH Amount (Inclusive):
-          </label>
           <input
             id="filter-min-eth-input"
             type="text"
             className="input-field"
-            placeholder="0.0"
+            placeholder="Min ETH"
             value={filters.minAmountEth}
             onChange={(e) => handleChange('minAmountEth', e.target.value)}
-            style={{ fontSize: '0.85rem', padding: '10px 12px' }}
+            style={{ padding: '6px 8px', fontSize: '0.78rem' }}
           />
         </div>
 
-        {/* Amount: Max ETH */}
         <div>
-          <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#94a3b8', marginBottom: '6px' }}>
-            Max ETH Amount (Inclusive):
-          </label>
           <input
             id="filter-max-eth-input"
             type="text"
             className="input-field"
-            placeholder="e.g. 5.0"
+            placeholder="Max ETH"
             value={filters.maxAmountEth}
             onChange={(e) => handleChange('maxAmountEth', e.target.value)}
-            style={{ fontSize: '0.85rem', padding: '10px 12px' }}
+            style={{ padding: '6px 8px', fontSize: '0.78rem' }}
           />
         </div>
 
-        {/* Block: Min Block */}
         <div>
-          <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#94a3b8', marginBottom: '6px' }}>
-            Min Block Number:
-          </label>
           <input
             id="filter-min-block-input"
             type="text"
             className="input-field"
-            placeholder="e.g. 6800000"
+            placeholder="Min Block"
             value={filters.minBlock}
             onChange={(e) => handleChange('minBlock', e.target.value)}
-            style={{ fontSize: '0.85rem', padding: '10px 12px' }}
+            style={{ padding: '6px 8px', fontSize: '0.78rem' }}
           />
         </div>
 
-        {/* Block: Max Block */}
         <div>
-          <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#94a3b8', marginBottom: '6px' }}>
-            Max Block Number:
-          </label>
           <input
             id="filter-max-block-input"
             type="text"
             className="input-field"
-            placeholder="e.g. 6850000"
+            placeholder="Max Block"
             value={filters.maxBlock}
             onChange={(e) => handleChange('maxBlock', e.target.value)}
-            style={{ fontSize: '0.85rem', padding: '10px 12px' }}
+            style={{ padding: '6px 8px', fontSize: '0.78rem' }}
           />
         </div>
       </div>
@@ -260,75 +199,72 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
       {(filterErrors.amountError || filterErrors.blockError) && (
         <div
           style={{
-            padding: '10px 14px',
-            borderRadius: '8px',
-            background: 'rgba(244, 63, 94, 0.08)',
-            border: '1px solid rgba(244, 63, 94, 0.3)',
-            color: '#f43f5e',
-            fontSize: '0.8rem',
+            padding: '6px 10px',
+            borderRadius: '6px',
+            background: 'rgba(248, 113, 113, 0.08)',
+            border: '1px solid rgba(248, 113, 113, 0.2)',
+            color: '#f87171',
+            fontSize: '0.75rem',
             display: 'flex',
             flexDirection: 'column',
-            gap: '4px',
-            marginBottom: '12px'
+            gap: '3px',
+            marginBottom: '8px'
           }}
         >
           {filterErrors.amountError && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <AlertCircle size={14} style={{ flexShrink: 0 }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <AlertCircle size={12} style={{ flexShrink: 0 }} />
               <span>{filterErrors.amountError}</span>
             </div>
           )}
           {filterErrors.blockError && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <AlertCircle size={14} style={{ flexShrink: 0 }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <AlertCircle size={12} style={{ flexShrink: 0 }} />
               <span>{filterErrors.blockError}</span>
             </div>
           )}
         </div>
       )}
 
-      {/* PDF Export Success Notification */}
+      {/* PDF Export Success */}
       {pdfExportSuccess && (
         <div
           style={{
-            padding: '10px 14px',
-            borderRadius: '8px',
-            background: 'rgba(16, 185, 129, 0.08)',
-            border: '1px solid rgba(16, 185, 129, 0.25)',
+            padding: '6px 10px',
+            borderRadius: '6px',
+            background: 'rgba(52, 211, 153, 0.08)',
+            border: '1px solid rgba(52, 211, 153, 0.2)',
             color: '#34d399',
-            fontSize: '0.8rem',
+            fontSize: '0.75rem',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
-            marginBottom: '12px'
+            gap: '6px',
+            marginBottom: '8px'
           }}
         >
-          <CheckCircle2 size={16} />
-          <span>PDF Report successfully generated and downloaded!</span>
+          <CheckCircle2 size={13} />
+          <span>Report downloaded</span>
         </div>
       )}
 
-      {/* Filter Counts Indicator */}
+      {/* Counts Indicator */}
       <div
         style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          paddingTop: '8px',
-          borderTop: '1px solid rgba(255, 255, 255, 0.04)',
-          fontSize: '0.8rem',
-          color: '#94a3b8'
+          fontSize: '0.72rem',
+          color: '#71717a'
         }}
       >
-        <div>
-          Showing <strong style={{ color: '#38bdf8' }}>{totalMatching}</strong> matching records out of{' '}
-          <strong style={{ color: '#f8fafc' }}>{totalRetrieved}</strong> total retrieved
-        </div>
+        <span>
+          Showing <span style={{ color: '#fafafa', fontWeight: 500 }}>{totalMatching}</span> of {totalRetrieved} records
+        </span>
 
         {totalRetrieved > 0 && totalMatching === 0 && (
-          <div style={{ color: '#fbbf24', fontWeight: 500 }}>
-            No records match the active filter criteria. Try expanding the range or clicking Reset Filters.
-          </div>
+          <span style={{ color: '#fbbf24' }}>
+            No matching records
+          </span>
         )}
       </div>
     </div>

@@ -1,6 +1,37 @@
 import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import autoTablePlugin, { applyPlugin } from 'jspdf-autotable';
 import { PdfReportOptions } from '../types/filters';
+
+// Apply plugin to jsPDF prototype if available
+try {
+  if (typeof applyPlugin === 'function') {
+    applyPlugin(jsPDF);
+  }
+} catch {
+  // Ignore if already applied or handled natively
+}
+
+/**
+ * Universal autoTable caller that works across all bundler and runtime environments
+ * (Vite ESM, CommonJS, browser bundles, and Vitest test runner).
+ */
+function callAutoTable(doc: jsPDF, tableOptions: any): number {
+  try {
+    if (typeof (doc as any).autoTable === 'function') {
+      (doc as any).autoTable(tableOptions);
+    } else if (typeof autoTablePlugin === 'function') {
+      (autoTablePlugin as any)(doc, tableOptions);
+    } else if (autoTablePlugin && typeof (autoTablePlugin as any).default === 'function') {
+      (autoTablePlugin as any).default(doc, tableOptions);
+    } else if (autoTablePlugin && typeof (autoTablePlugin as any).autoTable === 'function') {
+      (autoTablePlugin as any).autoTable(doc, tableOptions);
+    }
+  } catch (err) {
+    console.warn('callAutoTable warning:', err);
+  }
+
+  return (doc as any).lastAutoTable?.finalY ?? (tableOptions.startY || 100) + 40;
+}
 
 /**
  * Generates and downloads a comprehensive, production-grade PDF report
@@ -49,8 +80,9 @@ export function generateWalletActivityPdf(options: PdfReportOptions): jsPDF {
   currentY = 105;
 
   // Metadata Card Table
-  autoTable(doc, {
+  currentY = callAutoTable(doc, {
     startY: currentY,
+    tableWidth: pageWidth - margin * 2,
     margin: { left: margin, right: margin },
     theme: 'plain',
     styles: { fontSize: 8.5, cellPadding: 3, textColor: [30, 41, 59] },
@@ -64,9 +96,7 @@ export function generateWalletActivityPdf(options: PdfReportOptions): jsPDF {
       ['Source Type:', options.isSuppliedDataset ? 'Mode B — Supplied / Imported Dataset' : 'Mode A — Live Sepolia Explorer / Indexer API'],
       ['Retrieval Status:', options.dataRetrievalStatus || 'Completed Successfully']
     ]
-  });
-
-  currentY = (doc as any).lastAutoTable.finalY + 12;
+  }) + 12;
 
   // ==========================================
   // SECTION B: ORIGINAL QUERY TEXT
@@ -111,8 +141,9 @@ export function generateWalletActivityPdf(options: PdfReportOptions): jsPDF {
     : 'No Block Boundary (Filter Inactive)';
   const searchDesc = f.searchQuery.trim() ? `"${f.searchQuery.trim()}" (Active)` : 'None (Filter Inactive)';
 
-  autoTable(doc, {
+  currentY = callAutoTable(doc, {
     startY: currentY,
+    tableWidth: pageWidth - margin * 2,
     margin: { left: margin, right: margin },
     theme: 'grid',
     styles: { fontSize: 8, cellPadding: 4, lineColor: [226, 232, 240] },
@@ -124,9 +155,7 @@ export function generateWalletActivityPdf(options: PdfReportOptions): jsPDF {
       ['Block Height Range', blockDesc, (f.minBlock.trim() || f.maxBlock.trim()) ? 'ACTIVE' : 'INACTIVE'],
       ['Text Search Match', searchDesc, f.searchQuery.trim() ? 'ACTIVE' : 'INACTIVE']
     ]
-  });
-
-  currentY = (doc as any).lastAutoTable.finalY + 12;
+  }) + 12;
 
   // ==========================================
   // SECTION D: SUMMARY METRICS
@@ -142,8 +171,9 @@ export function generateWalletActivityPdf(options: PdfReportOptions): jsPDF {
     ? `#${s.minBlock} - #${s.maxBlock}`
     : 'N/A';
 
-  autoTable(doc, {
+  currentY = callAutoTable(doc, {
     startY: currentY,
+    tableWidth: pageWidth - margin * 2,
     margin: { left: margin, right: margin },
     theme: 'grid',
     styles: { fontSize: 8, cellPadding: 4, lineColor: [226, 232, 240] },
@@ -158,9 +188,7 @@ export function generateWalletActivityPdf(options: PdfReportOptions): jsPDF {
       ['Unknown-Direction Records', String(s.unknownCount), 'Excluded when a directional filter is active'],
       ['Matching Block Range', blockRangeText, 'Span of block heights among matching records']
     ]
-  });
-
-  currentY = (doc as any).lastAutoTable.finalY + 6;
+  }) + 6;
 
   doc.setFont('helvetica', 'italic');
   doc.setFontSize(7.5);
@@ -198,8 +226,9 @@ export function generateWalletActivityPdf(options: PdfReportOptions): jsPDF {
   });
 
   if (tableBody.length === 0) {
-    autoTable(doc, {
+    callAutoTable(doc, {
       startY: currentY,
+      tableWidth: pageWidth - margin * 2,
       margin: { left: margin, right: margin },
       theme: 'grid',
       styles: { fontSize: 8.5, cellPadding: 8, halign: 'center', textColor: [100, 116, 139] },
@@ -210,7 +239,7 @@ export function generateWalletActivityPdf(options: PdfReportOptions): jsPDF {
       ]
     });
   } else {
-    autoTable(doc, {
+    callAutoTable(doc, {
       startY: currentY,
       tableWidth: pageWidth - margin * 2,
       margin: { left: margin, right: margin },
@@ -247,14 +276,20 @@ export function generateWalletActivityPdf(options: PdfReportOptions): jsPDF {
   // ==========================================
   // SECTION F: TRANSPARENCY DISCLAIMER & FOOTER
   // ==========================================
-  const totalPages = (doc.internal as any).getNumberOfPages();
+  // If the last table reached the bottom of the page, add a clean final page for disclaimer
+  const lastTableFinalY = (doc as any).lastAutoTable?.finalY ?? 0;
+  if (lastTableFinalY > pageHeight - 65) {
+    doc.addPage();
+  }
+
+  const totalPages = doc.getNumberOfPages ? doc.getNumberOfPages() : (doc.internal as any).getNumberOfPages();
 
   for (let i = 1; i <= totalPages; i++) {
     doc.setPage(i);
 
     // Disclaimer on final page
     if (i === totalPages) {
-      const finalY = (doc as any).lastAutoTable?.finalY || pageHeight - 60;
+      const finalY = (doc as any).lastAutoTable?.finalY ?? pageHeight - 75;
       const disclaimerY = Math.min(finalY + 16, pageHeight - 48);
 
       doc.setFont('helvetica', 'normal');
@@ -281,10 +316,34 @@ export function generateWalletActivityPdf(options: PdfReportOptions): jsPDF {
 
 /**
  * Convenience function to trigger an immediate browser PDF download.
+ * Employs robust fallback to native Blob & anchor download if doc.save is restricted.
  */
 export function downloadWalletActivityPdf(options: PdfReportOptions, filename?: string): void {
   const doc = generateWalletActivityPdf(options);
   const cleanAddress = options.walletAddress ? options.walletAddress.slice(0, 8) : 'wallet';
   const name = filename || `wallet-activity-report-${cleanAddress}-${Date.now()}.pdf`;
-  doc.save(name);
+
+  try {
+    doc.save(name);
+  } catch (err) {
+    console.warn('doc.save failed, using native Blob download fallback:', err);
+    try {
+      const blob = doc.output('blob');
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = name;
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(() => {
+        if (document.body.contains(link)) {
+          document.body.removeChild(link);
+        }
+        URL.revokeObjectURL(blobUrl);
+      }, 500);
+    } catch (fallbackErr) {
+      console.error('Blob download fallback also failed:', fallbackErr);
+      throw fallbackErr;
+    }
+  }
 }

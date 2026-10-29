@@ -304,14 +304,16 @@ export const App: React.FC = () => {
   }, [rawTransactions, appliedFilters]);
 
   // Detailed Summary (Exact integer arithmetic for Wei amounts)
-  const detailedSummary: DetailedTransactionSummary | null = useMemo(() => {
-    if (rawTransactions.length === 0) return null;
+  const detailedSummary: DetailedTransactionSummary = useMemo(() => {
     return calculateDetailedSummary(matchingTransactions, rawTransactions.length);
   }, [rawTransactions, matchingTransactions]);
 
   // Export PDF Report Action
   const handleExportPdf = () => {
-    if (!validationResult?.normalizedAddress || !detailedSummary) return;
+    if (!validationResult?.normalizedAddress) {
+      setActivityError('Please enter and validate an Ethereum address first.');
+      return;
+    }
 
     setIsExportingPdf(true);
     setPdfExportSuccess(false);
@@ -357,30 +359,28 @@ export const App: React.FC = () => {
       {rpcError && (
         <div
           style={{
-            padding: '12px 18px',
-            borderRadius: '10px',
-            background: 'rgba(244, 63, 94, 0.1)',
-            border: '1px solid rgba(244, 63, 94, 0.3)',
-            color: '#f43f5e',
+            padding: '8px 12px',
+            borderRadius: '6px',
+            background: 'rgba(248, 113, 113, 0.08)',
+            border: '1px solid rgba(248, 113, 113, 0.2)',
+            color: '#f87171',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '12px'
+            fontSize: '0.78rem',
+            gap: '10px'
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <AlertCircle size={20} style={{ flexShrink: 0 }} />
-            <div>
-              <strong>Sepolia RPC Connection Warning:</strong> {rpcError}
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <AlertCircle size={14} style={{ flexShrink: 0 }} />
+            <span>RPC Error: {rpcError}</span>
           </div>
           <button
             onClick={() => setIsRpcModalOpen(true)}
             className="btn btn-secondary"
-            style={{ fontSize: '0.8rem', padding: '6px 12px' }}
+            style={{ fontSize: '0.72rem', padding: '3px 8px' }}
           >
-            Switch RPC Endpoint
+            Switch
           </button>
         </div>
       )}
@@ -412,17 +412,18 @@ export const App: React.FC = () => {
       {activityError && (
         <div
           style={{
-            padding: '12px 18px',
-            borderRadius: '10px',
-            background: 'rgba(244, 63, 94, 0.1)',
-            border: '1px solid rgba(244, 63, 94, 0.3)',
-            color: '#f43f5e',
+            padding: '8px 12px',
+            borderRadius: '6px',
+            background: 'rgba(248, 113, 113, 0.08)',
+            border: '1px solid rgba(248, 113, 113, 0.2)',
+            color: '#f87171',
             display: 'flex',
             alignItems: 'center',
-            gap: '10px'
+            gap: '6px',
+            fontSize: '0.78rem'
           }}
         >
-          <AlertCircle size={20} style={{ flexShrink: 0 }} />
+          <AlertCircle size={14} style={{ flexShrink: 0 }} />
           <span>{activityError}</span>
         </div>
       )}
@@ -431,20 +432,20 @@ export const App: React.FC = () => {
       {activitySuccessMessage && !activityError && (
         <div
           style={{
-            padding: '10px 16px',
-            borderRadius: '10px',
-            background: 'rgba(16, 185, 129, 0.08)',
-            border: '1px solid rgba(16, 185, 129, 0.25)',
+            padding: '8px 12px',
+            borderRadius: '6px',
+            background: 'rgba(52, 211, 153, 0.06)',
+            border: '1px solid rgba(52, 211, 153, 0.15)',
             color: '#34d399',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            gap: '10px',
-            fontSize: '0.85rem'
+            gap: '8px',
+            fontSize: '0.78rem'
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <CheckCircle2 size={16} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <CheckCircle2 size={13} />
             <span>{activitySuccessMessage}</span>
           </div>
 
@@ -452,20 +453,19 @@ export const App: React.FC = () => {
             <button
               onClick={() => setIsMalformedModalOpen(true)}
               style={{
-                background: 'rgba(245, 158, 11, 0.15)',
-                border: '1px solid rgba(245, 158, 11, 0.3)',
+                background: 'transparent',
+                border: 'none',
                 color: '#fbbf24',
-                padding: '4px 10px',
-                borderRadius: '6px',
                 cursor: 'pointer',
-                fontSize: '0.75rem',
+                fontSize: '0.72rem',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px'
+                gap: '4px',
+                textDecoration: 'underline'
               }}
             >
-              <AlertTriangle size={13} />
-              <span>{datasetMalformedRows.length} Malformed Rows Reported</span>
+              <AlertTriangle size={12} />
+              <span>{datasetMalformedRows.length} Malformed</span>
             </button>
           )}
         </div>
@@ -481,7 +481,7 @@ export const App: React.FC = () => {
         onClearResults={handleClearResults}
         onExportPdf={handleExportPdf}
         isExportingPdf={isExportingPdf}
-        canExportPdf={Boolean(validationResult?.isValid && rawTransactions.length > 0)}
+        canExportPdf={Boolean(validationResult?.isValid)}
         totalMatching={matchingTransactions.length}
         totalRetrieved={rawTransactions.length}
         pdfExportSuccess={pdfExportSuccess}
